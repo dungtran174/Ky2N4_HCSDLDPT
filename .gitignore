@@ -1,0 +1,61 @@
+# ==========================================
+# THƯ MỤC DỮ LIỆU ÂM THANH (NẶNG)
+# ==========================================
+# Thư mục chứa 510 file audio gốc
+data/
+# Thư mục chứa file audio test
+test/
+
+# ==========================================
+# FILE CSV DỮ LIỆU (CÓ THỂ TÁI TẠO)
+# ==========================================
+# Đặc trưng giọng nói (raw và scaled)
+audio_voice_features.csv
+audio_voice_features_scaled.csv
+# Đặc trưng nội dung (nặng ~4MB)
+audio_content_features.csv
+# Metadata (có thể tái tạo từ data/)
+metadata.csv
+
+# ==========================================
+# FILE PYTHON CACHE & BYTECODE
+# ==========================================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ==========================================
+# VIRTUAL ENVIRONMENT
+# ==========================================
+venv/
+env/
+.env/
+.venv/
+
+# ==========================================
+# HỆ THỐNG WINDOWS
+# ==========================================
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ==========================================
+# IDE & EDITOR
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ==========================================
+# STREAMLIT CACHE
+# ==========================================
+.streamlit/
+
+# ==========================================
+# FILE TẠM TRONG QUÁ TRÌNH CHẠY
+# ==========================================
+*.tmp
+*.log
