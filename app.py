@@ -47,7 +47,7 @@ st.sidebar.markdown("""
 * **Đặc trưng Nội dung:** Vector 384 chiều (Cosine)
 """)
 
-st.title("🎵 Hybrid Audio Search Engine")
+st.title("🎵 Audio Search Engine")
 st.markdown("Hệ thống truy vấn thông tin âm thanh dựa trên đặc tính vật lý (Voice) và ngữ nghĩa (Content).")
 
 

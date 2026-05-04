@@ -1,11 +1,11 @@
-# 🎵 Hybrid Audio Search Engine (CBIR)
+# 🎵 Audio Search Engine (CBIR)
 **Môn học:** Hệ Cơ sở Dữ liệu Đa phương tiện | **Nhóm:** 05
 
 ---
 
 ## 1. Tổng quan Dự án
 
-Hệ thống truy vấn âm thanh lai (Hybrid Audio Retrieval) cho phép người dùng upload một file `.wav` và tìm kiếm ra Top-3 file âm thanh giống nhất trong cơ sở dữ liệu theo **hai tiêu chí song song**:
+Hệ thống truy vấn âm thanh lai (Audio Retrieval) cho phép người dùng upload một file `.wav` và tìm kiếm ra Top-3 file âm thanh giống nhất trong cơ sở dữ liệu theo **hai tiêu chí song song**:
 
 | Chiều tìm kiếm | Phương pháp | Đặc trưng | Độ đo |
 |---|---|---|---|
@@ -411,7 +411,7 @@ streamlit run app.py
 |---|---|---|
 | **Voice** | Không cần nhãn giới tính, tự học từ tín hiệu | Nhạy cảm với chất lượng ghi âm, nhiễu nền |
 | **Content** | Chịu lỗi chính tả STT, hiểu ngữ nghĩa thực sự | Phụ thuộc vào chất lượng Whisper transcription |
-| **Hệ thống** | Hybrid — bổ sung lẫn nhau, HNSW index nhanh | Cần GPU để chạy Whisper nhanh hơn |
+| **Hệ thống** | Bổ sung lẫn nhau, HNSW index nhanh | Cần GPU để chạy Whisper nhanh hơn |
 
 ---
 
