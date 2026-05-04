@@ -55,7 +55,7 @@ st.markdown("Hệ thống truy vấn thông tin âm thanh dựa trên đặc tí
 # 5. KHU VỰC UPLOAD & TRUY VẤN
 # ==========================================
 st.subheader("1. Tải lên Audio Truy vấn (Query Audio)")
-uploaded_file = st.file_uploader("Chọn file âm thanh (.wav) chưa có trong hệ thống", type=['wav'])
+uploaded_file = st.file_uploader("Chọn file âm thanh (.wav)", type=['wav'])
 
 if uploaded_file is not None:
     # Lưu file tạm để xử lý
