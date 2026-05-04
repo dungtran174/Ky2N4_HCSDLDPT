@@ -211,6 +211,9 @@ PostgreSQL được chọn vì:
 ### 5.2. Thiết kế Schema
 
 ```sql
+-- Cài extension pgvector
+CREATE EXTENSION IF NOT EXISTS vector;
+
 -- Bảng 1: Thông tin mô tả
 CREATE TABLE audio_metadata (
     id       SERIAL PRIMARY KEY,
