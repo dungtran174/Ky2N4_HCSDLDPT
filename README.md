@@ -75,8 +75,10 @@ $$w[n] = 0.54 - 0.46 \cdot \cos\!\left(\frac{2\pi n}{N-1}\right)$$
 ### 3.3. Công thức tính từng đặc trưng
 
 **MFCC (Mel-Frequency Cepstral Coefficients):**
-$$\text{Mel}(f) = 2595 \cdot \log_{10}\!\left(1 + \frac{f}{700}\right)$$
-$$\text{MFCC}_k = \sum_{m=1}^{M} \log S_m \cdot \cos\!\left[k\left(m - \frac{1}{2}\right)\frac{\pi}{M}\right]$$
+
+$$\text{Mel}(f) = 2595 \cdot \log_{10}\left(1 + \frac{f}{700}\right)$$
+
+$$\text{MFCC}_k = \sum_{m=1}^{M} \log S_m \cdot \cos\left[k\left(m - \frac{1}{2}\right)\frac{\pi}{M}\right]$$
 
 **Zero Crossing Rate (ZCR):**
 $$\text{ZCR} = \frac{1}{N-1} \sum_{n=1}^{N-1} \mathbb{1}[x[n] \cdot x[n-1] < 0]$$
