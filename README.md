@@ -49,14 +49,28 @@ File WAV → Pre-emphasis → Framing → Windowing (Hamming) → FFT → Mel Fi
 ```
 
 **Bước 1: Pre-emphasis** — Tăng cường thành phần tần số cao bị suy giảm tự nhiên:
+
 $$y[n] = x[n] - \alpha \cdot x[n-1], \quad \alpha = 0.97$$
+
+Trong đó:
+- $y[n]$: Tín hiệu đầu ra sau khi lọc pre-emphasis tại mẫu thứ $n$
+- $x[n]$: Tín hiệu âm thanh gốc (input) tại mẫu thứ $n$
+- $x[n-1]$: Mẫu tín hiệu ngay trước đó
+- $\alpha = 0.97$: Hệ số pre-emphasis (giá trị chuẩn công nghiệp), quyết định mức độ tăng cường tần số cao
 
 **Bước 2: Framing** — Cắt tín hiệu thành các khung nhỏ chồng lấp:
 - Frame size: 25ms (~400 samples tại 16kHz)
 - Frame shift: 10ms (~160 samples)
 
 **Bước 3: Hamming Window** — Giảm nhiễu biên khung:
-$$w[n] = 0.54 - 0.46 \cdot \cos\!\left(\frac{2\pi n}{N-1}\right)$$
+
+$$w[n] = 0.54 - 0.46 \cdot \cos\left(\frac{2\pi n}{N-1}\right)$$
+
+Trong đó:
+- $w[n]$: Giá trị cửa sổ Hamming tại vị trí thứ $n$ trong khung
+- $n$: Chỉ số mẫu trong khung, chạy từ $0$ đến $N-1$
+- $N$: Tổng số mẫu trong một khung (frame size = 400 mẫu tại 16kHz)
+- $0.54$ và $0.46$: Các hằng số của cửa sổ Hamming, được chọn để tối thiểu hóa rò rỉ phổ (spectral leakage) tại biên khung
 
 **Bước 4: FFT → Mel Filterbank → Log → DCT = MFCC**
 
@@ -76,18 +90,69 @@ $$w[n] = 0.54 - 0.46 \cdot \cos\!\left(\frac{2\pi n}{N-1}\right)$$
 
 **MFCC (Mel-Frequency Cepstral Coefficients):**
 
+*Công thức 1 — Chuyển đổi tần số Hz sang thang Mel:*
+
 $$\text{Mel}(f) = 2595 \cdot \log_{10}\left(1 + \frac{f}{700}\right)$$
+
+Trong đó:
+- $\text{Mel}(f)$: Giá trị tần số trên thang Mel (đơn vị: mel) — thang đo phi tuyến mô phỏng cảm nhận âm thanh của tai người
+- $f$: Tần số vật lý đầu vào (đơn vị: Hz)
+- $2595$ và $700$: Các hằng số thực nghiệm, đảm bảo thang Mel xấp xỉ đúng cảm nhận thính giác con người
+- $\log_{10}$: Logarit cơ số 10 — phản ánh việc tai người cảm nhận tần số theo thang logarit (tần số càng cao, khả năng phân biệt càng kém)
+
+*Công thức 2 — Tính hệ số MFCC bằng biến đổi Cosine rời rạc (DCT):*
 
 $$\text{MFCC}_k = \sum_{m=1}^{M} \log S_m \cdot \cos\left[k\left(m - \frac{1}{2}\right)\frac{\pi}{M}\right]$$
 
-**Zero Crossing Rate (ZCR):**
+Trong đó:
+- $\text{MFCC}_k$: Hệ số MFCC thứ $k$ (hệ thống lấy $k = 1, 2, ..., 13$)
+- $k$: Chỉ số hệ số cepstral, quyết định mức độ chi tiết phổ ($k$ nhỏ = đặc trưng thô, $k$ lớn = chi tiết tinh)
+- $M$: Tổng số bộ lọc Mel (Mel filterbank), trong hệ thống dùng $M = 40$ bộ lọc
+- $m$: Chỉ số bộ lọc Mel, chạy từ $1$ đến $M$
+- $S_m$: Năng lượng phổ đầu ra của bộ lọc Mel thứ $m$ (sau khi áp dụng Mel filterbank lên phổ FFT)
+- $\log S_m$: Logarit của năng lượng — nén dải động, mô phỏng cảm nhận phi tuyến của tai người
+- $\cos[...]$: Phép biến đổi Cosine rời rạc (DCT) — khử tương quan giữa các bộ lọc, nén thông tin vào ít hệ số
+
+**Zero Crossing Rate (ZCR) — Tỷ lệ cắt qua mức 0:**
+
 $$\text{ZCR} = \frac{1}{N-1} \sum_{n=1}^{N-1} \mathbb{1}[x[n] \cdot x[n-1] < 0]$$
 
-**RMS Energy:**
+Trong đó:
+- $\text{ZCR}$: Tỷ lệ số lần tín hiệu đổi dấu (cắt qua trục 0) — giá trị từ $0$ đến $1$
+- $N$: Tổng số mẫu tín hiệu trong khung (frame)
+- $n$: Chỉ số mẫu, chạy từ $1$ đến $N-1$
+- $x[n]$: Biên độ tín hiệu tại mẫu thứ $n$
+- $x[n-1]$: Biên độ tín hiệu tại mẫu ngay trước đó
+- $\mathbb{1}[\cdot]$: Hàm chỉ thị (indicator function) — bằng $1$ nếu điều kiện bên trong đúng, bằng $0$ nếu sai
+- $x[n] \cdot x[n-1] < 0$: Điều kiện hai mẫu liên tiếp **trái dấu** (một dương, một âm) → tín hiệu cắt qua trục 0
+- $\frac{1}{N-1}$: Chuẩn hóa bằng tổng số cặp mẫu liền kề, đưa về tỷ lệ phần trăm
+
+**RMS Energy (Root Mean Square Energy) — Năng lượng hiệu dụng:**
+
 $$E = \sqrt{\frac{1}{N}\sum_{n=0}^{N-1} x[n]^2}$$
 
-**Spectral Centroid:**
+Trong đó:
+- $E$: Năng lượng RMS của tín hiệu — đo **độ to (loudness)** trung bình của âm thanh trong khung
+- $N$: Tổng số mẫu tín hiệu trong khung
+- $n$: Chỉ số mẫu, chạy từ $0$ đến $N-1$
+- $x[n]$: Biên độ tín hiệu tại mẫu thứ $n$
+- $x[n]^2$: Bình phương biên độ — loại bỏ dấu âm/dương, chỉ giữ lại độ lớn
+- $\frac{1}{N}$: Lấy trung bình (Mean) trên toàn bộ khung
+- $\sqrt{\cdot}$: Căn bậc hai — đưa giá trị về cùng đơn vị với biên độ gốc
+
+**Spectral Centroid — Tần số trọng tâm phổ:**
+
 $$C = \frac{\sum_k f_k \cdot |X[k]|}{\sum_k |X[k]|}$$
+
+Trong đó:
+- $C$: Spectral Centroid — tần số "trọng tâm" của phổ (đơn vị: Hz), cho biết vùng tần số mà năng lượng tập trung nhiều nhất. Giọng cao → $C$ lớn, giọng trầm → $C$ nhỏ
+- $k$: Chỉ số bin tần số trong phổ FFT
+- $f_k$: Tần số vật lý (Hz) tương ứng với bin thứ $k$
+- $X[k]$: Hệ số phổ Fourier (FFT) tại bin thứ $k$ — giá trị phức biểu diễn thành phần tần số
+- $|X[k]|$: Biên độ phổ (magnitude) tại bin $k$ — phản ánh cường độ năng lượng tại tần số $f_k$
+- $\sum_k f_k \cdot |X[k]|$: Tổng có trọng số — mỗi tần số $f_k$ được "cân" bởi năng lượng $|X[k]|$ tại tần số đó
+- $\sum_k |X[k]|$: Tổng năng lượng toàn phổ — dùng để chuẩn hóa, đảm bảo $C$ có đơn vị Hz
+- Ý nghĩa trực quan: Spectral Centroid là **trung bình có trọng số** (weighted average) của tất cả tần số, với trọng số là năng lượng. Tương tự "trọng tâm" trong vật lý
 
 ### 3.4. Tại sao chọn 32 đặc trưng này?
 
@@ -101,7 +166,14 @@ $$C = \frac{\sum_k f_k \cdot |X[k]|}{\sum_k |X[k]|}$$
 **Vấn đề:** Centroid có giá trị hàng ngàn Hz trong khi MFCC chỉ vài chục → Euclidean bị Centroid "áp đảo".
 
 **Giải pháp:** Chuẩn hóa mỗi cột về Mean=0, Std=1:
+
 $$z = \frac{x - \mu}{\sigma}$$
+
+Trong đó:
+- $z$: Giá trị đã chuẩn hóa (standardized value) — không có đơn vị, trung bình = 0, độ lệch chuẩn = 1
+- $x$: Giá trị gốc (raw value) của đặc trưng (ví dụ: `centroid_mean = 3500 Hz`)
+- $\mu$: Giá trị trung bình (mean) của cột đặc trưng đó trên toàn bộ 510 file trong CSDL
+- $\sigma$: Độ lệch chuẩn (standard deviation) của cột đặc trưng đó trên toàn bộ 510 file
 
 Các tham số $\mu$ và $\sigma$ được tính trên toàn bộ 510 file và lưu vào `scaler_params.json`. **Khi truy vấn, file audio mới bắt buộc phải được chuẩn hóa bằng đúng cùng bộ tham số này.**
 
@@ -140,11 +212,26 @@ Vector Embedding được thiết kế để **phương hướng (direction)** m
 
 $$\text{Cosine Similarity} = \frac{\vec{A} \cdot \vec{B}}{|\vec{A}||\vec{B}|} = \cos\theta$$
 
+Trong đó:
+- $\vec{A}$: Vector embedding 384 chiều của văn bản thứ nhất (ví dụ: query transcript)
+- $\vec{B}$: Vector embedding 384 chiều của văn bản thứ hai (ví dụ: file trong CSDL)
+- $\vec{A} \cdot \vec{B}$: Tích vô hướng (dot product) của hai vector = $\sum_{i=1}^{384} A_i \cdot B_i$
+- $|\vec{A}|$: Độ dài (norm/magnitude) của vector $\vec{A}$ = $\sqrt{\sum_{i=1}^{384} A_i^2}$
+- $|\vec{B}|$: Độ dài (norm/magnitude) của vector $\vec{B}$
+- $\theta$: Góc giữa hai vector trong không gian 384 chiều
+- $\cos\theta$: Cosine của góc — nằm trong khoảng $[-1, 1]$, giá trị càng gần $1$ thì hai vector càng cùng hướng (nội dung càng giống nhau)
+
 - $\theta = 0°$: Hai văn bản cùng chủ đề hoàn toàn → Score = 100%
 - $\theta = 90°$: Hai văn bản không liên quan → Score = 0%
 
 Trong pgvector, toán tử `<=>` trả về **Cosine Distance** (= 1 - Cosine Similarity). Do đó điểm tương đồng hiển thị được tính:
 $$\text{Score}_\text{content} = 1 - \text{CosineDistance}(\vec{q}, \vec{d})$$
+
+Trong đó:
+- $\text{Score}_\text{content}$: Điểm tương đồng nội dung (Content Similarity Score), giá trị từ $0\%$ đến $100\%$
+- $\text{CosineDistance}(\vec{q}, \vec{d})$: Khoảng cách Cosine = $1 - \text{Cosine Similarity}$, do toán tử `<=>` của pgvector trả về
+- $\vec{q}$: Vector embedding 384 chiều của file query (file audio người dùng upload)
+- $\vec{d}$: Vector embedding 384 chiều của file trong cơ sở dữ liệu
 
 ---
 
