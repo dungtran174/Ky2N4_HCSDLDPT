@@ -7,15 +7,8 @@ data/
 test/
 
 # ==========================================
-# FILE CSV DỮ LIỆU (CÓ THỂ TÁI TẠO)
+# FILE CSV DỮ LIỆU — PUSH LÊN GITHUB
 # ==========================================
-# Đặc trưng giọng nói (raw và scaled)
-audio_voice_features.csv
-audio_voice_features_scaled.csv
-# Đặc trưng nội dung (nặng ~4MB)
-audio_content_features.csv
-# Metadata (có thể tái tạo từ data/)
-metadata.csv
 
 # ==========================================
 # FILE PYTHON CACHE & BYTECODE
