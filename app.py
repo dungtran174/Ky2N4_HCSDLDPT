@@ -5,6 +5,7 @@ import os
 import numpy as np
 from scipy.io import wavfile
 import tempfile
+import matplotlib.pyplot as plt
 
 # Import class AudioSearchEngine từ Giai đoạn 4
 from search_engine import AudioSearchEngine
@@ -28,7 +29,33 @@ def load_engine():
 
 engine = load_engine()
 
-
+# ==========================================
+# 2. HÀM HỖ TRỢ TRỰC QUAN HÓA
+# ==========================================
+def create_audio_visualizations(filepath):
+    sample_rate, signal = wavfile.read(filepath)
+    if len(signal.shape) == 2:
+        signal = np.mean(signal, axis=1)
+        
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 6))
+    
+    # Waveform
+    time = np.linspace(0, len(signal) / sample_rate, num=len(signal))
+    ax1.plot(time, signal, color='#1f77b4')
+    ax1.set_title('Waveform')
+    ax1.set_xlabel('Time (s)')
+    ax1.set_ylabel('Amplitude')
+    ax1.grid(True, alpha=0.3)
+    
+    # Spectrogram
+    Pxx, freqs, bins, im = ax2.specgram(signal, Fs=sample_rate, NFFT=512, noverlap=256, cmap='viridis')
+    ax2.set_title('Spectrogram')
+    ax2.set_xlabel('Time (s)')
+    ax2.set_ylabel('Frequency (Hz)')
+    fig.colorbar(im, ax=ax2, label='Intensity (dB)')
+    
+    fig.tight_layout()
+    return fig
 
 # ==========================================
 # 3. SIDEBAR & GIAO DIỆN CHÍNH
@@ -65,7 +92,11 @@ if uploaded_file is not None:
 
     st.audio(tmp_audio_path, format="audio/wav")
     
-
+    with st.expander("📊 Xem trực quan Audio Truy vấn (Waveform & Spectrogram)"):
+        fig = create_audio_visualizations(tmp_audio_path)
+        st.pyplot(fig)
+        plt.close(fig)
+    
 
     # Nút thực hiện tìm kiếm
     if st.button("🚀 Bắt đầu Tìm kiếm (Search)", use_container_width=True):
@@ -102,6 +133,10 @@ if uploaded_file is not None:
                 res_path = os.path.join("data", filename)
                 if os.path.exists(res_path):
                     st.audio(res_path)
+                    with st.expander(f"📊 Trực quan hóa {filename}"):
+                        fig = create_audio_visualizations(res_path)
+                        st.pyplot(fig)
+                        plt.close(fig)
                 else:
                     st.warning("File không tồn tại trong thư mục data/")
                     
